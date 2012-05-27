@@ -1,9 +1,17 @@
 package kb.postxmascard;
-import processing.core.PApplet;
+import java.util.ArrayList;
 
 public class Kerstboom 
 {
-	PApplet parent;
+	PostXmasCard app;
+	
+	public int moveSpeed = 5;
+	public ArrayList<Bullet> bullets;
+	
+	public int shotPause = 10;
+	
+	protected boolean isShooting = false;
+	protected int prevShot = 0;
 	
 	int x;
 	float c1;      
@@ -14,10 +22,11 @@ public class Kerstboom
 	float c3dir;
 	int r;
 	
-	public Kerstboom ( PApplet p ) 
+	public Kerstboom ( PostXmasCard p ) 
 	{
-	    parent = p;
-	
+	    app = p;
+	    bullets = new ArrayList<Bullet>();
+	    
 	    x = 150;
 	    c1 = 0;      
 		c2 = 255; 
@@ -28,69 +37,131 @@ public class Kerstboom
 		r = 3;
 	}
 	
-	void display() 
+	public void display() 
 	{
-		//kerstboom
-		parent.background(0);
-		//stam of potje
-		parent.strokeWeight(2);
-		parent.stroke(128,64,0);
-		parent.fill(200,128,0);
-		parent.rect(x-10,parent.height-20,20,40);
+		drawTree();
     
-		//onderkantboom
-		parent.stroke(255);
-		parent.fill(0, 128,0);
-		parent.beginShape();
-		parent.vertex(x,parent.height - 100);
-		parent.vertex(x-40,parent.height-20);
-		parent.vertex(x+40,parent.height-20);
-		parent.endShape(parent.CLOSE);
+		// handle key presses
+		if (app.keyDetector.keyPressed()) 
+		{ 
+			if ( !isShooting )
+			{
+				// shoot new bullet
+				if (app.keyDetector.keyPressed(app.ENTER)
+					|| app.keyDetector.keyPressed(32)) 
+				{
+					Bullet bullet = new Bullet(app, x, app.height-100, 9);
+					bullet.x -= bullet.width/2;
+					bullets.add(bullet);
+					app.registerDraw(bullet);
+					
+					isShooting = true;
+				}
+			}
+			else
+			{
+				prevShot++;
+				if (prevShot == shotPause)
+				{
+					isShooting = false;
+					prevShot = 0;
+				}
+			}
+			
+			// move tree
+			if (app.keyDetector.keyPressed(app.LEFT)) 		x -= moveSpeed;
+			else if (app.keyDetector.keyPressed(app.RIGHT)) x += moveSpeed;
+		}
+		
+		// don't move tree beyond the boundaries
+		if (x <= 0) 			x = 0;
+		if ( x >= app.width) 	x = app.width;
+		
+		// clean up unused elements
+		cleanUp();
+	}
+	
+	/**
+	 * Delete unused objects from memory
+	 */
+	protected void cleanUp () 
+	{
+		// remove bullets outside the screen boundaries
+		for ( int i=0; i<bullets.size(); i++ )
+		{
+			Bullet bullet = bullets.get(i);
+			if (bullet.y+bullet.height < 0 || bullet.exploded) bullets.remove(i);
+		}
+	}
+	
+	/**
+	 * Draw the pretty tree with blinking lights
+	 */
+	protected void drawTree () 
+	{
+		// kerstboom
+		app.background(0);
+		
+		// stam of potje
+		app.strokeWeight(2);
+		app.stroke(128,64,0);
+		app.fill(200,128,0);
+		app.rect(x-10,app.height-20,20,40);
+    
+		// onderkantboom
+		app.stroke(255);
+		app.fill(0, 128,0);
+		app.beginShape();
+		app.vertex(x,app.height - 100);
+		app.vertex(x-40,app.height-20);
+		app.vertex(x+40,app.height-20);
+		app.endShape(app.CLOSE);
       
-		parent.stroke(255);
-		parent.fill(0,128,0);
-		parent.beginShape();
-		parent.vertex(x,parent.height-100);
-		parent.vertex(x-35,parent.height-40);
-		parent.vertex(x+35,parent.height-40);
-		parent.endShape(parent.CLOSE);
-		//topje
-		parent.beginShape();
-		parent.vertex(x, parent.height-100);
-		parent.vertex(x-30,parent.height-60);
-		parent.vertex(x+30,parent.height-60);
-		parent.endShape(parent.CLOSE);
+		app.stroke(255);
+		app.fill(0,128,0);
+		app.beginShape();
+		app.vertex(x,app.height-100);
+		app.vertex(x-35,app.height-40);
+		app.vertex(x+35,app.height-40);
+		app.endShape(app.CLOSE);
+		
+		// topje
+		app.beginShape();
+		app.vertex(x, app.height-100);
+		app.vertex(x-30,app.height-60);
+		app.vertex(x+30,app.height-60);
+		app.endShape(app.CLOSE);
     
-		//lichtjes
-		parent.noStroke();
-		parent.fill(c1,c2,c3);
-		parent.ellipse (x,parent.height - 85, 3,3);
-		parent.fill(c3,c1,c2);
-		parent.ellipse (x-13,parent.height - 72, r,r);
-		parent.fill(c1,c1,c2);
-		parent.ellipse (x+13,parent.height - 72, r,r);
-		parent.fill(c2,c1,c2);
-		parent.ellipse (x,parent.height - 70, r,r);
+		// lichtjes
+		app.noStroke();
+		app.fill(c1,c2,c3);
+		app.ellipse (x,app.height - 85, 3,3);
+		app.fill(c3,c1,c2);
+		app.ellipse (x-13,app.height - 72, r,r);
+		app.fill(c1,c1,c2);
+		app.ellipse (x+13,app.height - 72, r,r);
+		app.fill(c2,c1,c2);
+		app.ellipse (x,app.height - 70, r,r);
    
-		parent.fill(c3,c2,c1);
-		parent.ellipse (x+17,parent.height - 55, r,r);
-		parent.fill(c2,c1,c3);
-		parent.ellipse (x-17,parent.height - 55, r,r);
-		parent.fill(c1,c1,c1);
-		parent.ellipse (x-9,parent.height - 52, r,r);
-		parent.fill(c2,c3,c1);
-		parent.ellipse (x+4,parent.height - 50, r,r);
+		app.fill(c3,c2,c1);
+		app.ellipse (x+17,app.height - 55, r,r);
+		app.fill(c2,c1,c3);
+		app.ellipse (x-17,app.height - 55, r,r);
+		app.fill(c1,c1,c1);
+		app.ellipse (x-9,app.height - 52, r,r);
+		app.fill(c2,c3,c1);
+		app.ellipse (x+4,app.height - 50, r,r);
     
-		parent.fill(c1,c3,c2);
-		parent.ellipse (x-25,parent.height - 35, r,r);
-		parent.fill(c2,c2,c1);
-		parent.ellipse (x+25,parent.height - 35, r,r);
-		parent.fill(c3,c1,c3);
-		parent.ellipse (x-13,parent.height - 30, r,r);
-		parent.fill(c2,c1,c1);
-		parent.ellipse (x+12,parent.height - 30, r,r);
-		parent.fill(c3,c3,c3);
-		parent.ellipse (x-1,parent.height - 28, r,r);
+		app.fill(c1,c3,c2);
+		app.ellipse (x-25,app.height - 35, r,r);
+		app.fill(c2,c2,c1);
+		app.ellipse (x+25,app.height - 35, r,r);
+		app.fill(c3,c1,c3);
+		app.ellipse (x-13,app.height - 30, r,r);
+		app.fill(c2,c1,c1);
+		app.ellipse (x+12,app.height - 30, r,r);
+		app.fill(c3,c3,c3);
+		app.ellipse (x-1,app.height - 28, r,r);
     
 		c1 = c1 + c1dir;
 		c2 = c2 + c2dir;
@@ -106,19 +177,5 @@ public class Kerstboom
 			c2dir *= -1;
 			c3dir *= -1;
 		}
-    
-		if (parent.keyPressed && (parent.key == parent.CODED)) { 
-			if (parent.keyCode == parent.LEFT) { // 
-				x--;
-			} else if (parent.keyCode == parent.RIGHT) { // 
-				x++;
-			}
-		}
-		if (x <= 40){
-			x = 40;
-		}
-		if ( x >= 360){
-			x = 360;
-		}     
 	}
 }

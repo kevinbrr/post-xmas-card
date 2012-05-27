@@ -20,7 +20,7 @@ public class Intersection extends PApplet
 		background(0);
 		smooth();
 		
-		star = new Star(this);
+		star = new Star(this, 100, 100, 100, 100);
 		
 		//println( intersection(50,50,200,200,200,50,50,200) );
 		
@@ -47,7 +47,7 @@ public class Intersection extends PApplet
 		
 		fill(255,255,0);
 		star.angle += 0.01f;
-		star.display();
+		star.draw();
 		
 		PVector prevPoint = star.points[star.points.length-1];
 		PVector thisPoint;

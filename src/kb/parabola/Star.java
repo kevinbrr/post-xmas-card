@@ -8,17 +8,27 @@ import processing.core.PVector;
 public class Star 
 {
 	PApplet pa;
+	
+	public float cx;
+	public float cy;
+	public float width;
+	public float height;
 	public float angle=0;
 	public PVector[] points;
 	
-	public Star ( PApplet p )
+	public Star ( PApplet p, float cx, float cy, float width, float height )
 	{
-		pa = p;
+		this.pa = p;
+		this.cx = cx;
+		this.cy = cy;
+		this.width = width;
+		this.height = height;
 	}
 	
-	public void display ()
+	public void draw ()
 	{
-		drawStar(5,100,100,100,100,angle,0.4f);
+		pa.fill(255,255,0);
+		drawStar( 5, cx, cy, width, height, angle, 0.4f );
 	}
 	
 	protected void drawStar(
