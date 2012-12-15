@@ -16,12 +16,17 @@ public class Star
 	public float angle=0;
 	public PVector[] points;
 	
+	public float fallX;
+	public float fallY;
+	
 	public double gravity = 9.8;
 	public double velocity = 30; // rate of change of displacement (speed)
 	public float hitAngle = 90;
 	
 	protected double hitTime = 1;
-	protected boolean isHit = false;
+	public boolean isHit = false;
+	public boolean isVisible = true;
+	public boolean hasHitTree = false;
 	
 	public Star ( PApplet p, float cx, float cy, float width, float height, float angle )
 	{
@@ -41,13 +46,21 @@ public class Star
 	
 	public void draw ()
 	{
+		// stop drawing if the star is not visible anymore
+		if ( fallY+(height/2) > pa.height ) 
+		{
+			isVisible = false;
+			return;
+		}
+		
 		pa.fill(255,255,0);
 		pa.noStroke();
 		
 		if (isHit) 	
 		{
-			float fallX = (float) (cx + horizontalDisplacement(hitTime));
-			float fallY = (float) (cy - verticalDisplacement(hitTime));
+			// draw falling star
+			fallX = (float) (cx + horizontalDisplacement(hitTime));
+			fallY = (float) (cy - verticalDisplacement(hitTime));
 		
 			angle += 0.1;
 			drawStar( 5, fallX, fallY, width, height, angle, 0.4f );
@@ -56,6 +69,7 @@ public class Star
 		}
 		else 
 		{
+			// draw static star
 			drawStar( 5, cx, cy, width, height, angle, 0.4f );
 		}
 	}
@@ -103,12 +117,12 @@ public class Star
 	  }
 	}
 	
-	double horizontalDisplacement( double time ) 
+	protected double horizontalDisplacement( double time ) 
 	{ 
 		return velocity*time*pa.cos(pa.radians(hitAngle)); 
 	}
 	
-	double verticalDisplacement( double time ) 
+	protected double verticalDisplacement( double time ) 
 	{ 
 		return (velocity*time*pa.sin(pa.radians(hitAngle)) - gravity/2*time*time); 
 	}

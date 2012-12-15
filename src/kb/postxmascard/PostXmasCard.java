@@ -2,22 +2,27 @@ package kb.postxmascard;
 
 import kb.utils.KeyDetector;
 import processing.core.PApplet;
-import processing.core.PFont;
+import processing.core.PImage;
 import processing.core.PVector;
 
-
+/**
+ * Post Xmas Card
+ * --------------
+ * Mod of Annemieke's 2011 christmas card that makes the tree shoot the stars
+ * out of heaven. Check http://www.kleinegeluiden.nl/kerstkaart/ for the 
+ * original version.
+ * 
+ * @author Annemieke van den Heuvel
+ * @author Kevin Breed
+ */
 public class PostXmasCard extends PApplet
 {
 	KeyDetector keyDetector;
-	
-	Star[] stars = new Star[12];
+	Star[] stars = new Star[4];
 	Kerstboom kerstboom;
-
-	/*
-	PFont fontA;
-	float x = width+200; 
-	float y = 150;
-	*/
+	PImage imgOfChrist;
+	boolean riseChrist = true;
+	int[] positionOfChrist = new int[2];
 	
 	public static void main(String args[]) 
 	{
@@ -26,7 +31,7 @@ public class PostXmasCard extends PApplet
 
 	public void setup() 
 	{
-	  size(400,400);  
+	  size(288,432);  
 	  background(0);
 	  smooth(); 
 	  
@@ -69,36 +74,42 @@ public class PostXmasCard extends PApplet
 		  registerDraw(star);
 		  stars[i] = star;
 	  }
+	  
+	  // load the pantocrator
+	  imgOfChrist = loadImage("christ-pantocrator.png");
+	  positionOfChrist[0] = -imgOfChrist.width+30;
+	  positionOfChrist[1] = this.height;
 	}
 
 	public void draw () 
 	{   
 		background(0);
-		kerstboom.display();
 		
 		checkHits();
+	
+		// draw horizon
+		this.fill(0, 128,0);
+		this.stroke(255,255,255);
+		this.rect(-2, this.height-10,this.width+3,10);
 		
-		/*
-		fill(255,0,0);
-		
-		float txtSpeed = 1.5f;
-		x -= txtSpeed;
-		if (x < -200)
-		{
-			x = width;
-			y = random(50,200);
-		}
-		
-		text("Jingle Bells!",x,y);
-		*/ 
+		kerstboom.display();
 	}
 	
 	protected void checkHits ()
 	{
+		int invisibleStars = 0;
+		
 		for ( int i=0; i<stars.length; i++ )
 		{
 			Star star = stars[i];
 			
+			// skip check if star is not visible
+			if ( !star.isVisible ) {
+				invisibleStars++;
+				continue;
+			}
+			
+			// check if bullet hits star	
 			for ( int j=0; j<kerstboom.bullets.size(); j++ )
 			{
 				Bullet bullet = kerstboom.bullets.get(j);
@@ -130,7 +141,67 @@ public class PostXmasCard extends PApplet
 					bullet.explode();
 				}
 			}
+			
+			// check if falling star hits tree
+			if ( star.isHit && !star.hasHitTree )
+			{
+				PVector starPrevPoint = star.points[star.points.length-1];
+				
+				for ( int j=0; j<star.points.length; j++ )
+				{
+					PVector starPoint = star.points[j];
+					PVector treeIntersectLeft = segIntersection(
+							starPrevPoint.x,
+							starPrevPoint.y,
+							starPoint.x, 
+							starPoint.y,
+							kerstboom.x-43, 
+							height,
+							kerstboom.x,
+							height-100
+					);
+					PVector treeIntersectRight = segIntersection(
+							starPrevPoint.x,
+							starPrevPoint.y,
+							starPoint.x, 
+							starPoint.y,
+							kerstboom.x+43, 
+							height,
+							kerstboom.x,
+							height-100
+					);
+					
+					if ( !star.hasHitTree 
+						 && (treeIntersectLeft != null || treeIntersectRight != null) )
+					{
+						star.hasHitTree = true;
+						kerstboom.hit();
+					}
+					
+					starPrevPoint = star.points[j];
+				}
+			}
 		}
+		
+		if (invisibleStars >= stars.length && riseChrist)
+		{
+			//System.out.print( "SHOW END!!!" );
+			theRiseOfChrist();
+		}
+	}
+	
+	protected void theRiseOfChrist ()
+	{
+		image(imgOfChrist, positionOfChrist[0], positionOfChrist[1], 358, 500);
+		
+		if (positionOfChrist[1] > -10)
+		{
+			positionOfChrist[0] += 1;
+			positionOfChrist[1] -= 1;
+		}
+		//endpoint: image(imgOfChrist, 30, -10, 358, 500);
+		
+		//riseChrist = false;
 	}
 	
 	/**
