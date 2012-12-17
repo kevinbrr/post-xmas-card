@@ -53,7 +53,10 @@ public class Kerstboom
 	public void display() 
 	{
 		drawTree();
-    
+		
+		// make sure the image will be full opaque
+		//app.tint(255);
+		
 		// handle key presses
 		if (app.keyDetector.keyPressed()) 
 		{
@@ -63,6 +66,7 @@ public class Kerstboom
 				if (app.keyDetector.keyPressed(app.ENTER)
 					|| app.keyDetector.keyPressed(32)) 
 				{
+					//app.tint(255,255);
 					app.image(fire, x-17, app.height-123);
 					
 					Bullet bullet = new Bullet(app, x, app.height-100, 9);
@@ -76,7 +80,10 @@ public class Kerstboom
 			else
 			{
 				prevShot++;
-				if (prevShot < 3) app.image(fire, x-17, app.height-123);
+				if (prevShot < 3) {
+					//app.tint(255,255);
+					app.image(fire, x-17, app.height-123);
+				}
 				if (prevShot == shotPause)
 				{
 					isShooting = false;

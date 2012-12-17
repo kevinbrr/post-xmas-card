@@ -18,11 +18,15 @@ import processing.core.PVector;
 public class PostXmasCard extends PApplet
 {
 	KeyDetector keyDetector;
-	Star[] stars = new Star[4];
+	Star[] stars = new Star[18];
 	Kerstboom kerstboom;
+	
 	PImage imgOfChrist;
-	boolean riseChrist = true;
-	int[] positionOfChrist = new int[2];
+	float[] positionOfChrist = new float[2];
+	double opacityOfChrist = 1.0;
+	int pauseChrist = 75;
+	int christPauseTime = 0;
+	float[] christRiseSpeed = {0,0};
 	
 	public static void main(String args[]) 
 	{
@@ -42,42 +46,11 @@ public class PostXmasCard extends PApplet
 	  // draw the christmas tree (this one is able to shoot!)
 	  kerstboom = new Kerstboom(this);
 	  
-	  // get row and column dimension based on the total number of stars
-	  // (note that any number larger than ten ending on 1, 3, 7 or 9 only
-	  // produces a single line with stars, because these numbers can't be
-	  // equally divided)
-	  int[] starsRowAndColNum = getRowAndColNumByTotal(stars.length);
-	  int starsRows = starsRowAndColNum[0];
-	  int starsCols = starsRowAndColNum[1];
-	  int curRow = -1;
-	  double skyHeight = Math.ceil(height/2f);
-	  float cellWidth = (width/starsCols);
-	  float cellHeight = (float) (skyHeight/starsRows);
-	  
-	  // fill the sky with stars!
-	  for (int i = 0; i < stars.length; i ++ ) 
-	  {
-		  // determine the current row
-		  if ( i%starsCols == 0 ) curRow++;
-		  
-		  // put stars neatly into a grid so they don't overlap
-		  float starX 		= cellWidth*(i%starsCols); 
-		  float starY 		= cellHeight*curRow;
-		  float starSize 	= random(20,35);
-		  
-		  // randomize star position within their cell
-		  starX = random(starX+(starSize/2), starX+cellWidth-(starSize/2));
-		  starY = random(starY+(starSize/2), starY+cellHeight-(starSize/2));
-		  
-		  // create star
-		  Star star = new Star(this, starX, starY, starSize, starSize, random(0,360));
-		  registerDraw(star);
-		  stars[i] = star;
-	  }
+	  drawStars();
 	  
 	  // load the pantocrator
 	  imgOfChrist = loadImage("christ-pantocrator.png");
-	  positionOfChrist[0] = -imgOfChrist.width+30;
+	  positionOfChrist[0] = 0;
 	  positionOfChrist[1] = this.height;
 	}
 
@@ -86,13 +59,49 @@ public class PostXmasCard extends PApplet
 		background(0);
 		
 		checkHits();
-	
+		
 		// draw horizon
 		this.fill(0, 128,0);
 		this.stroke(255,255,255);
 		this.rect(-2, this.height-10,this.width+3,10);
 		
 		kerstboom.display();
+	}
+	
+	protected void drawStars ()
+	{
+		// get row and column dimension based on the total number of stars
+		// (note that any number larger than ten ending on 1, 3, 7 or 9 only
+		// produces a single line with stars, because these numbers can't be
+		// equally divided)
+		int[] starsRowAndColNum = getRowAndColNumByTotal(stars.length);
+		int starsRows = starsRowAndColNum[0];
+		int starsCols = starsRowAndColNum[1];
+		int curRow = -1;
+		double skyHeight = Math.ceil(height/2f);
+		float cellWidth = (width/starsCols);
+		float cellHeight = (float) (skyHeight/starsRows);
+		  
+		// fill the sky with stars!
+		for (int i = 0; i < stars.length; i ++ ) 
+		{
+			// determine the current row
+			if ( i%starsCols == 0 ) curRow++;
+			  
+			// put stars neatly into a grid so they don't overlap
+			float starX 	= cellWidth*(i%starsCols); 
+			float starY 	= cellHeight*curRow;
+			float starSize 	= random(20,35);
+			  
+			// randomize star position within their cell
+			starX = random(starX+(starSize/2), starX+cellWidth-(starSize/2));
+			starY = random(starY+(starSize/2), starY+cellHeight-(starSize/2));
+			  
+			// create star
+			Star star = new Star(this, starX, starY, starSize, starSize, random(0,360));
+			registerDraw(star);
+			stars[i] = star;
+		}
 	}
 	
 	protected void checkHits ()
@@ -183,25 +192,66 @@ public class PostXmasCard extends PApplet
 			}
 		}
 		
-		if (invisibleStars >= stars.length && riseChrist)
-		{
-			//System.out.print( "SHOW END!!!" );
+		if (invisibleStars >= stars.length)
 			theRiseOfChrist();
-		}
 	}
 	
 	protected void theRiseOfChrist ()
 	{
-		image(imgOfChrist, positionOfChrist[0], positionOfChrist[1], 358, 500);
+		float targetX = 0;
+		float targetY = -10;
 		
-		if (positionOfChrist[1] > -10)
+		float dx = targetX-positionOfChrist[0];
+		float dy = targetY-positionOfChrist[1];
+		
+		int steps = 1000;
+		
+		if ( christRiseSpeed[0] == 0 ) 
+			christRiseSpeed[0] = dx/steps;
+		
+		if ( christRiseSpeed[1] == 0 ) 
+			christRiseSpeed[1] = dy/steps;
+		
+		// update position
+		if (abs(dx) > 1) positionOfChrist[0] += christRiseSpeed[0];
+		if (abs(dy) > 1) positionOfChrist[1] += christRiseSpeed[1];
+		
+		// rise christ
+		if (abs(dx) > 1 || abs(dy) > 1)
 		{
-			positionOfChrist[0] += 1;
-			positionOfChrist[1] -= 1;
+			tint(255, (float)opacityOfChrist*255f);
+			image(imgOfChrist, positionOfChrist[0], positionOfChrist[1]);
 		}
-		//endpoint: image(imgOfChrist, 30, -10, 358, 500);
 		
-		//riseChrist = false;
+		// fade christ
+		else
+		{
+			if ( christPauseTime >= pauseChrist )
+			{
+				tint(255, (float)opacityOfChrist*255f);
+				image(imgOfChrist, positionOfChrist[0], positionOfChrist[1]);
+				noTint();
+				opacityOfChrist -= 0.01;
+				
+				if (opacityOfChrist < 0.01) reset();
+			}
+			else {
+				image(imgOfChrist, positionOfChrist[0], positionOfChrist[1]);
+				christPauseTime++;
+			}
+		}
+	}
+	
+	protected void reset() 
+	{
+		christPauseTime = 0;
+		opacityOfChrist = 1;
+		positionOfChrist = new float[2];
+		positionOfChrist[0] = 0;
+		positionOfChrist[1] = this.height;
+		
+		stars = new Star[stars.length];
+		drawStars();
 	}
 	
 	/**
