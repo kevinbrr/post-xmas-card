@@ -63,7 +63,7 @@ public class PostXmasCard extends PApplet
 		// draw horizon
 		this.fill(0, 128,0);
 		this.stroke(255,255,255);
-		this.rect(-2, this.height-10,this.width+3,10);
+		this.rect(-2, this.height-10,this.width+3,11);
 		
 		kerstboom.display();
 	}
