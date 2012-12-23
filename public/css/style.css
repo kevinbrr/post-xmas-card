@@ -16,6 +16,7 @@ body:before {
 }
 #wrapper {
 	min-height: 100%;
+	min-width: 100%;
 }
 #container {
 	overflow: visible;
