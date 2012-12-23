@@ -1,0 +1,124 @@
+html, body {height: 100%;}		
+body {
+	margin: 0;
+	padding: 0;
+	background: url('../img/table-texture.jpg');
+	font-family: Lucida Sans Unicode, Lucida Grande, sans-serif;
+	font-size: 12px;
+}
+/*Opera Fix*/
+body:before {
+	content:"";
+	height:100%;
+	float:left;
+	width:0;
+	margin-top:-32767px;/
+}
+#wrapper {
+	min-height: 100%;
+}
+#container {
+	overflow: visible;
+	position: relative;
+	width: 313px;
+	height: 458px;
+	margin: 0 auto;
+	padding: 40px 0 50px;
+}
+#container .envelope {
+	position: absolute;
+	top: 84px;
+	left: -205px;
+}
+#container .card {
+	position: relative;
+	width: 288px;
+	height: 432px;
+	padding: 9px 16px 17px 9px;
+	background: url('../img/bg-card.png');
+}
+#container .card object:focus {
+	overflow: visible;
+	-moz-box-shadow:    0 0 2px 2px #308100;
+	-webkit-box-shadow: 0 0 2px 2px #308100;
+	box-shadow:         0 0 2px 2px #308100;
+	outline: none;
+}
+#footer {
+	position: relative;
+	margin-top: -30px; /* negative value of footer height */
+	height: 30px;
+	min-width: 420px;
+	clear:both;
+} 
+#footer .inner {
+	margin: 0 auto;
+	overflow: hidden;
+}
+#toolbar {
+	width: 100%;
+	height: 30px;
+	bottom: 0;
+	background: rgb(255,255,255);
+	background: rgba(255, 255, 255, 0.6);
+}
+#toolbar .inner { height: 100%; }
+#toolbar h1 {
+	float: left;
+	padding: 0;
+	margin: 7px 0 0 7px;
+	font-size: 14px;
+}
+#toolbar .nav {
+	float: left;
+	list-style-type: none;
+	margin: 8px 0 0 10px;
+	padding: 0 0 0 2px;
+	border-left: 1px solid #000;
+}
+#toolbar .nav li{
+	float: left;
+	margin: 0 0 0 8px;
+}
+#toolbar .nav a {
+	display: block;
+	color: #000;
+	text-decoration: none;
+}
+#toolbar .nav a:hover,
+#toolbar .nav a:focus {
+	color: #fff;
+	background: #000;
+}
+#toolbar .copyright {
+	float: right;
+	margin: 7px 7px 0 0;
+}
+#toolbar .copyright a { 
+	font-weight: bold;
+	color: #000; 
+	text-decoration: none;
+}
+#info-holder {
+	width: 100%;
+	background: rgb(255,255,255);
+	background: rgba(255, 255, 255, 0.5);
+}
+#info-holder .inner { padding: 0 0 30px; }
+#info-holder .inner > div {
+	float: left;
+	width: 40%;
+	margin: 0 0 0 1%;
+	overflow: hidden;
+}
+#info-holder .inner > div#share { width: 17%; }
+#info-holder .share-links {
+	padding: 0 20px 0;
+}
+#info-holder a { color: #000; }
+#info-holder a:hover,
+#info-holder a:focus {
+	color: #fff;
+	background-color: #000;
+	text-decoration: none;
+}
