@@ -62,12 +62,13 @@ public class PostXmasCard extends PApplet
 	  imgOfChrist = loadImage("christ-pantocrator.png");
 	  positionOfChrist[0] = 0;
 	  positionOfChrist[1] = this.height;
+	  
+	  soundEngine.resetSound.trigger();
 	}
 
 	public void draw () 
 	{   
 		background(0);
-		
 		checkHits();
 		
 		// draw horizon
