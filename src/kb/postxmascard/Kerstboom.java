@@ -5,6 +5,7 @@ import processing.core.PImage;
 
 public class Kerstboom 
 {
+	SoundEngine soundEngine;
 	PostXmasCard app;
 	
 	public int moveSpeed = 5;
@@ -30,6 +31,7 @@ public class Kerstboom
 	{
 	    app = p;
 	    bullets = new ArrayList<Bullet>();
+	    soundEngine = new SoundEngine(app);
 	    
 	    //fire = new Gif(app, "fire_animation.gif");
 		//fire.play();
@@ -68,6 +70,7 @@ public class Kerstboom
 				{
 					//app.tint(255,255);
 					app.image(fire, x-17, app.height-123);
+					soundEngine.shootSound.trigger();
 					
 					Bullet bullet = new Bullet(app, x, app.height-100, 9);
 					bullet.x -= bullet.width/2;

@@ -1,5 +1,6 @@
 package kb.postxmascard;
 
+import ddf.minim.Minim;
 import kb.utils.KeyDetector;
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -21,6 +22,11 @@ public class PostXmasCard extends PApplet
 	Star[] stars = new Star[18];
 	Kerstboom kerstboom;
 	
+	SoundEngine soundEngine;
+	Minim minim;
+	double fadeValue = 0.0;
+	boolean fading = false;
+	
 	PImage imgOfChrist;
 	float[] positionOfChrist = new float[2];
 	double opacityOfChrist = 1.0;
@@ -38,6 +44,10 @@ public class PostXmasCard extends PApplet
 	  size(288,432);  
 	  background(0);
 	  smooth(); 
+	  
+	  // sound FX with minim and SoundEngine
+	  minim = new Minim(this);	 
+	  soundEngine = new SoundEngine(this);
 	  
 	  // custom key detector to detect multiple key presses
 	  keyDetector = new KeyDetector();
@@ -148,6 +158,7 @@ public class PostXmasCard extends PApplet
 					
 					star.fall(hitAngle);
 					bullet.explode();
+					soundEngine.starSound.trigger();
 				}
 			}
 			
@@ -192,12 +203,17 @@ public class PostXmasCard extends PApplet
 			}
 		}
 		
-		if (invisibleStars >= stars.length)
+		if (invisibleStars >= stars.length) {
 			theRiseOfChrist();
+			soundEngine.playChristSound();
+			soundEngine.christSound.unmute();
+		}
 	}
 	
 	protected void theRiseOfChrist ()
 	{
+		float currentVolume = soundEngine.christSound.getGain();
+		
 		float targetX = 0;
 		float targetY = -10;
 		
@@ -221,6 +237,7 @@ public class PostXmasCard extends PApplet
 		{
 			tint(255, (float)opacityOfChrist*255f);
 			image(imgOfChrist, positionOfChrist[0], positionOfChrist[1]);
+			soundEngine.christSound.setGain(0);
 		}
 		
 		// fade christ
@@ -233,7 +250,19 @@ public class PostXmasCard extends PApplet
 				noTint();
 				opacityOfChrist -= 0.01;
 				
-				if (opacityOfChrist < 0.01) reset();
+				if ( opacityOfChrist < 0.94 && !fading ) 
+				{						
+					fading = true;
+					soundEngine.christSound.shiftGain(currentVolume, -80, 2000);						
+				} else {
+					fading = false;					
+				}
+				
+				if (opacityOfChrist < 0.01 )	
+				{					
+					soundEngine.resetSound.trigger();
+					reset();
+				}
 			}
 			else {
 				image(imgOfChrist, positionOfChrist[0], positionOfChrist[1]);
@@ -244,6 +273,8 @@ public class PostXmasCard extends PApplet
 	
 	protected void reset() 
 	{
+		soundEngine.christSound.mute();
+		
 		christPauseTime = 0;
 		opacityOfChrist = 1;
 		positionOfChrist = new float[2];
@@ -252,6 +283,13 @@ public class PostXmasCard extends PApplet
 		
 		stars = new Star[stars.length];
 		drawStars();
+	}
+	
+	// stop and close minim
+	public void stop() {
+		minim.stop();
+		soundEngine.stop();
+		super.stop();
 	}
 	
 	/**
